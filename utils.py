@@ -129,7 +129,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
                     img = Image.fromarray(img_array)
                     
                 #img = imresize(img, (256, 256))
-                img = Image.resize(img, (256, 256))
+                img = img.resize(img, (256, 256))
                 img = img.transpose(2, 0, 1)
                 assert img.shape == (3, 256, 256)
                 assert np.max(img) <= 255
