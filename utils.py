@@ -80,10 +80,12 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
     base_filename = dataset + '_' + str(captions_per_image) + '_cap_per_img_' + str(min_word_freq) + '_min_word_freq'
 
     # Save word map to a JSON
-    #with open(os.path.join(output_folder, 'WORDMAP_' + base_filename + '.json'), 'w') as j:
-    #    json.dump(word_map, j)
-    with open('word_map.json', 'w') as j:
+    json_path = output_folder, 'WORDMAP_' + base_filename + '.json'
+    with open(json_path, 'w') as j:
         json.dump(word_map, j)
+    
+    #with open('word_map.json', 'w') as j:
+    #    json.dump(word_map, j)
         
     # Sample captions for each image, save images to HDF5 file, and captions and their lengths to JSON files
     seed(123)
@@ -91,7 +93,8 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
                                    (val_image_paths, val_image_captions, 'VAL'),
                                    (test_image_paths, test_image_captions, 'TEST')]:
 
-        with h5py.File(os.path.join(output_folder, split + '_IMAGES_' + base_filename + '.hdf5'), 'a') as h:
+        h5_path = output_folder, split + '_IMAGES_' + base_filename + '.hdf5'
+        with h5py.File(h5_path, 'a') as h:
             # Make a note of the number of captions we are sampling per image
             h.attrs['captions_per_image'] = captions_per_image
 
