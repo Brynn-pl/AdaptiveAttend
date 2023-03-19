@@ -127,11 +127,12 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
                     img_array = img_array[:, :, np.newaxis]
                     img_array = np.concatenate([img_array, img_array, img_array], axis=2)
                     img = Image.fromarray(img_array)
-                    
+                
                 #img = imresize(img, (256, 256))
                 #img = img.resize(img, (256, 256))
                 img = img.resize((256, 256), resample=Image.BILINEAR)
-                img = img.transpose(2, 0, 1)
+                #img = img.transpose(2, 0, 1)
+                img = np.transpose(img_array, (2, 0, 1))
                 assert img.shape == (3, 256, 256)
                 assert np.max(img) <= 255
 
