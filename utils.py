@@ -1,13 +1,14 @@
 import os
+import json
+from collections import Counter
+from random import seed, choice, sample
 import numpy as np
 import h5py
-import json
 import torch
 #from scipy.misc import imread,imresize
 from PIL import Image
 from tqdm import tqdm
-from collections import Counter
-from random import seed, choice, sample
+
 
 
 def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_image, min_word_freq, output_folder,
@@ -27,7 +28,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
     assert dataset in {'coco', 'flickr8k', 'flickr30k'}
 
     # Read Karpathy JSON
-    with open(karpathy_json_path, 'r') as j:
+    with open(karpathy_json_path, 'r', encoding='utf-8') as j:
         data = json.load(j)
 
     # Read image paths and captions for each image
@@ -80,12 +81,12 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
     base_filename = dataset + '_' + str(captions_per_image) + '_cap_per_img_' + str(min_word_freq) + '_min_word_freq'
 
     # Save word map to a JSON
-    #json_path = output_folder + '/WORDMAP_' + base_filename + '.json'
-    #with open(json_path, 'w') as j:
-    #    json.dump(word_map, j)
+    json_path = output_folder + '/WORDMAP_' + base_filename + '.json'
+    with open(json_path, 'w', encoding='utf-8') as j:
+       json.dump(word_map, j)
     
-    with open('word_map.json', 'w') as j:
-        json.dump(word_map, j)
+    # with open('word_map.json', 'w') as j:
+    #     json.dump(word_map, j)
         
     # Sample captions for each image, save images to HDF5 file, and captions and their lengths to JSON files
     seed(123)
@@ -93,7 +94,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
                                    (val_image_paths, val_image_captions, 'VAL'),
                                    (test_image_paths, test_image_captions, 'TEST')]:
 
-        with h5py.File(split + '_IMAGES.hdf5', 'a') as h:
+        with h5py.File(os.path.join(output_folder, split + '_IMAGES_' + base_filename + '.hdf5'), 'a') as h:
             # Make a note of the number of captions we are sampling per image
             h.attrs['captions_per_image'] = captions_per_image
 
@@ -122,24 +123,23 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
                 #if len(img.shape) == 2:
                 #    img = img[:, :, np.newaxis]
                 #    img = np.concatenate([img, img, img], axis=2)
+                #得到原始图像img的Numpy数组表示
                 img_array = np.array(img)
+                #将灰度图像转为彩色图像
                 if len(img_array.shape) == 2:
                     img_array = img_array[:, :, np.newaxis]
                     img_array = np.concatenate([img_array, img_array, img_array], axis=2)
                     img = Image.fromarray(img_array)
-                
+                    
                 #img = imresize(img, (256, 256))
                 #img = img.resize(img, (256, 256))
-                img = img.resize((256, 256), resample=Image.BILINEAR)
+                #img = img.resize((256, 256), resample=Image.BILINEAR)
                 #img = img.transpose(2, 0, 1)
-                img = np.transpose(img_array, (2, 0, 1))
-                img = Image.fromarray(img_array)
-                #assert img.shape == (3, 256, 256)
-                #assert np.max(img) <= 255
-                if img_array.shape != (3, 256, 256):
-                  print(i,':shape',img_array.shape)
-                #assert img_array.shape == (3, 256, 256)
-                #assert np.max(img_array) <= 255
+                #img = np.transpose(img_array, (2, 0, 1))
+                img = np.array(img.resize((256, 256), resample=Image.BILINEAR))
+                img = np.transpose(img, (2, 0, 1))
+                assert img.shape == (3, 256, 256)
+                assert np.max(img) <= 255
 
                 # Save image to HDF5 file
                 images[i] = img
@@ -208,6 +208,7 @@ def load_embeddings(emb_file, word_map):
             continue
 
         embeddings[word_map[emb_word]] = torch.FloatTensor(embedding)
+        #embeddings[word_map[emb_word]] = torch.Tensor(embedding, dtype=torch.float)
 
     return embeddings, emb_dim
 
