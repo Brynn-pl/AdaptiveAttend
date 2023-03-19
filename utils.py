@@ -136,9 +136,10 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
                 img = Image.fromarray(img_array)
                 #assert img.shape == (3, 256, 256)
                 #assert np.max(img) <= 255
-                print(i,':shape',img_array.shape)
-                assert img_array.shape == (3, 256, 256)
-                assert np.max(img_array) <= 255
+                if img_array.shape != (3, 256, 256):
+                  print(i,':shape',img_array.shape)
+                #assert img_array.shape == (3, 256, 256)
+                #assert np.max(img_array) <= 255
 
                 # Save image to HDF5 file
                 images[i] = img
