@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # Create input files (along with word map)
     create_input_files(dataset=args.dataset,
-                       karpathy_json_path='/kaggle/input/karpathy-splits/dataset_flickr8k.json',
+                       karpathy_json_path='AdaptiveAttend/caption_datasets/dataset_flickr8k.json',
                        image_folder=args.img_folder,
                        captions_per_image=5,
                        min_word_freq=5,
