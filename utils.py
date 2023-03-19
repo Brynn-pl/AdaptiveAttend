@@ -133,8 +133,10 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
                 img = img.resize((256, 256), resample=Image.BILINEAR)
                 #img = img.transpose(2, 0, 1)
                 img = np.transpose(img_array, (2, 0, 1))
-                assert img.shape == (3, 256, 256)
-                assert np.max(img) <= 255
+                #assert img.shape == (3, 256, 256)
+                #assert np.max(img) <= 255
+                assert img_array.shape == (3, 256, 256)
+                assert np.max(img_array) <= 255
 
                 # Save image to HDF5 file
                 images[i] = img
