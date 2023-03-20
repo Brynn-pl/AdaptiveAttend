@@ -194,6 +194,7 @@ def evaluate(args):
             if k == 0:
                 break
             seqs = seqs[incomplete_inds]
+            prev_word_inds = prev_word_inds.long()
             h = h[prev_word_inds[incomplete_inds]]
             c = c[prev_word_inds[incomplete_inds]]
             encoder_out = encoder_out[prev_word_inds[incomplete_inds]]
