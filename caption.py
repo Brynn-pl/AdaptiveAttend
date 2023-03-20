@@ -1,7 +1,7 @@
 import argparse
 import json
 import os
-
+import math
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -211,7 +211,7 @@ def visualize_att(image_path, seq, alphas, rev_word_map, smooth=True):
     for t in range(len(words)):
         if t > 50:
             break
-        plt.subplot(np.ceil(len(words) / 5.), 5, t + 1)
+        plt.subplot(math.ceil(len(words) / 5.), 5, t + 1)
 
         plt.text(0, 1, '%s' % (words[t]), color='black', backgroundcolor='white', fontsize=12)
         plt.imshow(image)
