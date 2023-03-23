@@ -213,7 +213,7 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         # match_distances = distances_matrix[lables.view(-1, 1) == lables.view(1, -1)]
         # nonmatch_distances = distances_matrix[lables.view(-1, 1) != lables.view(1, -1)]
         match_distances = dist_matrix.diagonal()
-        nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(batch_size))*1e6, dim=1).values
+        nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(batch_size, device=dist_matrix.device))*1e6, dim=1).values
         # 计算对比损失
         contrastive_loss = torch.mean(torch.clamp(margin + match_distances - nonmatch_distances, min=0))
 
@@ -330,7 +330,7 @@ def validate(val_loader, encoder, decoder, criterion, extractor):
         # match_distances = distances_matrix[lables.view(-1, 1) == lables.view(1, -1)]
         # nonmatch_distances = distances_matrix[lables.view(-1, 1) != lables.view(1, -1)]
         match_distances = dist_matrix.diagonal()
-        nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(batch_size))*1e6, dim=1).values
+        nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(batch_size, device=dist_matrix.device))*1e6, dim=1).values
         # 计算对比损失
         contrastive_loss = torch.mean(torch.clamp(margin + match_distances - nonmatch_distances, min=0))
 
