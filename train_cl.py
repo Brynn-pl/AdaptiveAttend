@@ -1,5 +1,6 @@
 import argparse
 import time
+import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 import torch.optim
 import torch.utils.data
