@@ -343,10 +343,10 @@ class CaptionFeatureExtractor(nn.Module):
         self.fc = nn.Linear(768, 512)        
     def forward(self, captions):
         # Convert raw text to integer-encoded sequences using the tokenizer
-        input_ids = self.tokenizer(captions, padding=True, truncation=True, max_length=self.caption_max_len, return_tensors='pt').input_ids
+        input_ids = self.tokenizer(captions, padding=True, truncation=True, max_length=self.caption_max_len, return_tensors='pt').input_ids.to(device)
         
         # Create attention mask (1s for tokens, 0s for padding)
-        attention_mask = (input_ids != self.tokenizer.pad_token_id).type(torch.uint8)
+        attention_mask = (input_ids != self.tokenizer.pad_token_id).type(torch.uint8).to(device)
         
         # Pass the input_ids and attention_mask through the BERT model
         outputs = self.bert(input_ids, attention_mask=attention_mask)
