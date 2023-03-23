@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torchvision
 import torch.nn.functional as F
+from transformers import BertModel, BertTokenizer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -332,3 +333,31 @@ class DecoderWithAttention(nn.Module):
                 alphas[:batch_size_t, t, :] = alpha[:, :-1]
 
         return predictions, encoded_captions, decode_lengths, alphas, sort_ind
+
+class CaptionFeatureExtractor(nn.Module):
+    def __init__(self, bert_pretrained_model, caption_max_len=64):
+        super(CaptionFeatureExtractor, self).__init__()
+        self.caption_max_len = caption_max_len
+        self.tokenizer = BertTokenizer.from_pretrained(bert_pretrained_model)
+        self.bert = BertModel.from_pretrained(bert_pretrained_model, output_attentions=True, output_hidden_states=True)
+        self.fc = nn.Linear(768, 512)        
+    def forward(self, captions):
+        # Convert raw text to integer-encoded sequences using the tokenizer
+        input_ids = self.tokenizer(captions, padding=True, truncation=True, max_length=self.caption_max_len, return_tensors='pt').input_ids
+        
+        # Create attention mask (1s for tokens, 0s for padding)
+        attention_mask = (input_ids != self.tokenizer.pad_token_id).type(torch.uint8)
+        
+        # Pass the input_ids and attention_mask through the BERT model
+        outputs = self.bert(input_ids, attention_mask=attention_mask)
+        
+        # Get the last hidden state of the BERT model, shape (batch_size, caption_max_len, hidden_size)
+        last_hidden_state = outputs.last_hidden_state
+        
+        # Average the last_hidden_state over the sequence length dimension to get a fixed-size feature vector, shape (batch_size, hidden_size)
+        caption_features = torch.mean(last_hidden_state, dim=1)
+        
+        # Apply a fully connected layer to the caption_features tensor to get dimension (batch_size, 512)
+        caption_features = self.fc(caption_features)
+        
+        return caption_features
