@@ -94,8 +94,6 @@ def main(args):
 
     # Loss function
     criterion = nn.CrossEntropyLoss().to(device)
-    # ContrastiveLoss
-    # contrastive_criterion = ContrastiveLoss(margin=0.2).to(device)
 
     # Custom dataloaders
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -179,16 +177,13 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         imgs = imgs.to(device)
         caps = caps.to(device)
         caplens = caplens.to(device)
-
         # Forward prop.
         imgs = encoder(imgs)
 
         # 得到原始captions：raw_caps
-        with open('flickr8k_folder/WORDMAP_flickr8k_5_cap_per_img_5_min_word_freq.json') as f:
-            vocab = json.load(f) # 获取词汇表
         raw_caps = []
         for sequence in caps:
-            tokens = [list(vocab.keys())[list(vocab.values()).index(token)] for token in sequence[1:]]
+            tokens = [list(word_map.keys())[list(word_map.values()).index(token)] for token in sequence[1:]]
             text = " ".join(tokens)
             raw_caps.append(text)
         # print(raw_caps[0])
@@ -197,13 +192,14 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         # print(raw_caps[31])
         # # 提取原始caption特征
         # txt_feature = extractor.encode(raw_caps) 
-        txt_feature = extractor(raw_caps)
+        txt_feature = extractor.extract_features(raw_caps)
+
         # 归一化
         img_feature = F.normalize(imgs[1], dim=1)
         txt_feature = F.normalize(txt_feature, dim=1)
+#         print(img_feature.shape,txt_feature.shape)
         # 计算contrastive_loss：在原始文本特征和图像特征之间
         dist_matrix = F.pairwise_distance(img_feature.unsqueeze(1), txt_feature.unsqueeze(0)) # 距离矩阵
-        # print(img_feature.shape,txt_feature.shape)
         # print(dist_matrix)
         # distances_matrix = F.cosine_similarity(imgs[1], targets.unsqueeze(0))
         # 创建标签 维度为batch_size:[0,1,2,3,...]
@@ -308,15 +304,13 @@ def validate(val_loader, encoder, decoder, criterion, extractor):
             imgs = encoder(imgs)
 
         # 得到原始captions：raw_caps
-        with open('flickr8k_folder/WORDMAP_flickr8k_5_cap_per_img_5_min_word_freq.json') as f:
-            vocab = json.load(f) # 获取词汇表
         raw_caps = []
         for sequence in caps:
-            tokens = [list(vocab.keys())[list(vocab.values()).index(token)] for token in sequence[1:]]
+            tokens = [list(word_map.keys())[list(word_map.values()).index(token)] for token in sequence[1:]]
             text = " ".join(tokens)
             raw_caps.append(text)
         # 提取原始caption特征
-        txt_feature = extractor(raw_caps)
+        txt_feature = extractor.extract_features(raw_caps)
         # 归一化
         img_feature = F.normalize(imgs[1], dim=1)
         txt_feature = F.normalize(txt_feature, dim=1)
@@ -382,7 +376,7 @@ def validate(val_loader, encoder, decoder, criterion, extractor):
                 map(lambda c: [w for w in c if w not in {word_map['<start>'], word_map['<pad>']}],
                     img_caps))  # remove <start> and pads
             references.append(img_captions)
-
+        
         # Hypotheses
         _, preds = torch.max(scores_copy, dim=2)
         preds = preds.tolist()
