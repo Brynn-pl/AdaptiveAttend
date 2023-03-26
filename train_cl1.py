@@ -290,7 +290,7 @@ def validate(val_loader, encoder, decoder, criterion):
         # distances_matrix = F.cosine_similarity(imgs[1], targets.unsqueeze(0))
 
         match_distances = dist_matrix.diagonal()
-        nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(batch_size, device=dist_matrix.device))*1e6, dim=1).values
+        nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(dist_matrix.shape[0], device=dist_matrix.device))*1e6, dim=1).values
         # 计算对比损失
         contrastive_loss = torch.mean(torch.clamp(margin + match_distances - nonmatch_distances, min=0))
 
