@@ -8,6 +8,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', '-d', default='flickr8k', help='dataset')
     parser.add_argument('--img_folder', '-i', default='image_folder', help='path to image')
     parser.add_argument('--caption_folder', '-cf', default='caption_datasets', help='path to captions')
+    parser.add_argument('--glove', '-g', default='glove.6B.50d.txt', help='path to emd_file')
 
     args = parser.parse_args()
 
@@ -18,4 +19,4 @@ if __name__ == '__main__':
                        captions_per_image=5,
                        min_word_freq=5,
                        output_folder='{:s}_folder'.format(args.dataset),
-                       max_len=50)
+                       glove=args.glove, max_len=50)
