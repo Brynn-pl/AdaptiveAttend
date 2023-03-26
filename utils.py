@@ -159,7 +159,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
             # 提取文本特征
             embeddings = load_embeddings(glove, word_map)[0]
             # 从词嵌入矩阵中获取每个单词的词嵌入向量
-            embedded_texts = embeddings[enc_captions[:,1:]]
+            embedded_texts = embeddings[enc_captions]
             # print(embedded_texts.shape)  # 30000,52,50
             # 拼接词向量
             size = embedded_texts.shape
