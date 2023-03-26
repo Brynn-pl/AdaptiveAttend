@@ -84,10 +84,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
     json_path = output_folder + '/WORDMAP_' + base_filename + '.json'
     with open(json_path, 'w', encoding='utf-8') as j:
        json.dump(word_map, j)
-    
-    # with open('word_map.json', 'w') as j:
-    #     json.dump(word_map, j)
-        
+
     # Sample captions for each image, save images to HDF5 file, and captions and their lengths to JSON files
     seed(123)
     for impaths, imcaps, split in [(train_image_paths, train_image_captions, 'TRAIN'),
@@ -157,6 +154,28 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
 
             # Sanity check
             assert images.shape[0] * captions_per_image == len(enc_captions) == len(caplens)
+
+            # print(len(enc_captions),len(enc_captions[0])) # 30000,52
+            # 提取文本特征
+            embeddings = load_embeddings("glove.6B.50d.txt", word_map)[0]
+            # 从词嵌入矩阵中获取每个单词的词嵌入向量
+            embedded_texts = embeddings[enc_captions[:,1:]]
+            # print(embedded_texts.shape)  # 30000,52,50
+            # 拼接词向量
+            size = embedded_texts.shape
+            embedded_concat = torch.zeros(size[0], size[1]*size[2])
+            for i in range(size[0]):
+                words = embedded_texts[i] # 获取第 i 个序列中的词 52x50的矩阵
+                for j in range(size[1]):
+                    if j < len(words):
+                        embedded_concat[i, j*50:(j+1)*50] = words[j] # 将每个序列中的词向量依次拼接
+                    else:
+                        embedded_concat[i, j*50:(j+1)*50] = 0 # 将不足 52 个的词向量补 0
+            print(embedded_concat.shape)
+
+            # 保存提取的特征到文件
+            with open(os.path.join(output_folder, split + '_TEXT_FEATS_' + base_filename + '.json'), "w") as f:
+                json.dump(embedded_concat.tolist(), f)
 
             # Save encoded captions and their lengths to JSON files
             with open(os.path.join(output_folder, split + '_CAPTIONS_' + base_filename + '.json'), 'w') as j:
