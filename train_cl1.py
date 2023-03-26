@@ -34,7 +34,7 @@ grad_clip = 5.  # clip gradients at an absolute value of
 alpha_c = 1.  # regularization parameter for 'doubly stochastic attention', as in the paper
 best_bleu4 = 0.  # BLEU-4 score right now
 print_freq = 100  # print training/validation stats every __ batches
-fine_tune_encoder = False  # fine-tune encoder?
+fine_tune_encoder = True  # fine-tune encoder?
 checkpoint = None  # path to checkpoint, None if none
 margin = 0.5    #对比损失
 
@@ -182,7 +182,7 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         # 归一化
         img_feature = F.normalize(imgs[1], dim=1)
         txt_feature = F.normalize(txt_feature.float(), dim=1)
-        print(i, img_feature.shape, txt_feature.shape)
+#         print(i, img_feature.shape, txt_feature.shape)
         # 计算contrastive_loss：在原始文本特征和图像特征之间
         dist_matrix = F.pairwise_distance(img_feature.unsqueeze(1), txt_feature.unsqueeze(0)).to(device) # 距离矩阵
         # print(dist_matrix)
