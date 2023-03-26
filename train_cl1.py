@@ -284,7 +284,7 @@ def validate(val_loader, encoder, decoder, criterion):
 
         # 归一化
         img_feature = F.normalize(imgs[1], dim=1)
-        txt_feature = F.normalize(txt_feature, dim=1)
+        txt_feature = F.normalize(txt_feature.float(), dim=1)
         # 计算contrastive_loss：在原始文本特征和图像特征之间
         dist_matrix = F.pairwise_distance(img_feature.unsqueeze(1), txt_feature.unsqueeze(0)).to(device) # 距离矩阵
         # distances_matrix = F.cosine_similarity(imgs[1], targets.unsqueeze(0))
