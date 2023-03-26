@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 
 def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_image, min_word_freq, output_folder,
-                       max_len=100):
+                       glove, max_len=100):
     """
     Creates input files for training, validation, and test data.
 
@@ -157,7 +157,7 @@ def create_input_files(dataset, karpathy_json_path, image_folder, captions_per_i
 
             # print(len(enc_captions),len(enc_captions[0])) # 30000,52
             # 提取文本特征
-            embeddings = load_embeddings("glove.6B.50d.txt", word_map)[0]
+            embeddings = load_embeddings(glove, word_map)[0]
             # 从词嵌入矩阵中获取每个单词的词嵌入向量
             embedded_texts = embeddings[enc_captions[:,1:]]
             # print(embedded_texts.shape)  # 30000,52,50
