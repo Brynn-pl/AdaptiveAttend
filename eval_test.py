@@ -74,7 +74,7 @@ def evaluate(args):
     hypotheses = list()
 
     # For each image
-    for i, (image, caps, caplens, allcaps) in enumerate(
+    for i, (image, _, _, _, allcaps) in enumerate(
             tqdm(loader, desc="EVALUATING AT BEAM SIZE " + str(args.beam_size))):
 
         k = args.beam_size
