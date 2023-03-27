@@ -65,10 +65,13 @@ def evaluate(args):
     # DataLoader
     data_folder = '{:s}_folder'.format(args.dataset)  # folder with data files saved by create_input_files.py
     data_name = '{:s}_5_cap_per_img_5_min_word_freq'.format(args.dataset)  # base name shared by data files
+#     loader = torch.utils.data.DataLoader(
+#         CaptionDataset(data_folder, data_name, 'TEST', transform=transforms.Compose([normalize])),
+#         batch_size=1, shuffle=True, collate_fn=scatter, pin_memory=False)
     loader = torch.utils.data.DataLoader(
         CaptionDataset(data_folder, data_name, 'TEST', transform=transforms.Compose([normalize])),
-        batch_size=1, shuffle=True, collate_fn=scatter, pin_memory=False)
-
+        batch_size=1, shuffle=True, pin_memory=False)
+    
     # TODO: Batched Beam Search
 
     # Lists to store references (true captions), and hypothesis (prediction) for each image
