@@ -12,13 +12,10 @@ import argparse
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # sets device for model and PyTorch tensors
 cudnn.benchmark = True  # set to true only if inputs to model are fixed size; otherwise lot of computational overhead
 
-# 将数据分发到不同的GPU上
-def scatter(data):
-    return torch.nn.parallel.scatter(data,[0, 1])
-
 def get_args():
     """
     Define parameters for evaluation.
+
     :return: arguments
     """
 
@@ -34,6 +31,7 @@ def get_args():
 def evaluate(args):
     """
     Evaluation
+
     :param beam_size: beam size at which to generate captions for evaluation
     :return: BLEU scores
     """
@@ -43,11 +41,9 @@ def evaluate(args):
                                              args.dataset)))
     decoder = checkpoint['decoder']
     decoder = decoder.to(device)
-    decoder = torch.nn.DataParallel(decoder)
     decoder.eval()
     encoder = checkpoint['encoder']
     encoder = encoder.to(device)
-    encoder = torch.nn.DataParallel(encoder)
     encoder.eval()
 
     # Load word map (word2ix)
@@ -65,13 +61,10 @@ def evaluate(args):
     # DataLoader
     data_folder = '{:s}_folder'.format(args.dataset)  # folder with data files saved by create_input_files.py
     data_name = '{:s}_5_cap_per_img_5_min_word_freq'.format(args.dataset)  # base name shared by data files
-#     loader = torch.utils.data.DataLoader(
-#         CaptionDataset(data_folder, data_name, 'TEST', transform=transforms.Compose([normalize])),
-#         batch_size=1, shuffle=True, collate_fn=scatter, pin_memory=False)
     loader = torch.utils.data.DataLoader(
         CaptionDataset(data_folder, data_name, 'TEST', transform=transforms.Compose([normalize])),
         batch_size=1, shuffle=True, pin_memory=False)
-    
+
     # TODO: Batched Beam Search
 
     # Lists to store references (true captions), and hypothesis (prediction) for each image
@@ -81,7 +74,7 @@ def evaluate(args):
     hypotheses = list()
 
     # For each image
-    for i, (image, caps, txt_features, caplens, allcaps) in enumerate(
+    for i, (image, caps, caplens, allcaps) in enumerate(
             tqdm(loader, desc="EVALUATING AT BEAM SIZE " + str(args.beam_size))):
 
         k = args.beam_size
@@ -100,7 +93,7 @@ def evaluate(args):
         except AttributeError:
             encoder_out = encoder(image)  # (1, enc_image_size, enc_image_size, encoder_dim)
 
-#         enc_image_size = encoder_out.size(1)
+        enc_image_size = encoder_out.size(1)
         encoder_dim = encoder_out.size(3)
 
         # Flatten encoding
