@@ -57,7 +57,7 @@ class CaptionDataset(Dataset):
 
         caption_features = torch.LongTensor(self.text_feats[i])
 
-        if self.split is 'TRAIN':
+        if self.split == 'TRAIN':
             return img, caption, caption_features, caplen
         else:
             # For validation of testing, also return all 'captions_per_image' captions to find BLEU-4 score
