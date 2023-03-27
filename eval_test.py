@@ -100,7 +100,7 @@ def evaluate(args):
         except AttributeError:
             encoder_out = encoder(image)  # (1, enc_image_size, enc_image_size, encoder_dim)
 
-        enc_image_size = encoder_out.size(1)
+#         enc_image_size = encoder_out.size(1)
         encoder_dim = encoder_out.size(3)
 
         # Flatten encoding
