@@ -6,6 +6,7 @@ from datasets import *
 from utils import *
 from nltk.translate.bleu_score import corpus_bleu
 import torch.nn.functional as F
+import torch.nn as nn
 from tqdm import tqdm
 import argparse
 
@@ -39,9 +40,11 @@ def evaluate(args):
                                              args.dataset)))
     decoder = checkpoint['decoder']
     decoder = decoder.to(device)
+    decoder = nn.DataParallel(decoder)
     decoder.eval()
     encoder = checkpoint['encoder']
     encoder = encoder.to(device)
+    encoder = nn.DataParallel(encoder)
     encoder.eval()
 
     # Load word map (word2ix)
