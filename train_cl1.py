@@ -87,6 +87,9 @@ def main(args):
             encoder_optimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()),
                                                  lr=encoder_lr)
             
+    if torch.cuda.device_count() > 1:  # 查看当前电脑的可用的gpu的数量，若gpu数量>1,就多gpu训练
+        decoder = torch.nn.DataParallel(decoder)
+        encoder = torch.nn.DataParallel(encoder) #多gpu训练,自动选择gpu            
     # Move to GPU, if available
     decoder = decoder.to(device)
     encoder = encoder.to(device)
@@ -202,12 +205,15 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         targets = pack_padded_sequence(targets, decode_lengths, batch_first=True)[0]
 
         # cross-entrophy loss：模型的输出与真实的caption之间
-        loss = criterion(scores, targets) 
+        loss = 0.8 * criterion(scores, targets) 
 
         # Add doubly stochastic attention regularization
         loss += alpha_c * ((1. - alphas.sum(dim=1)) ** 2).mean()
         # Add Contrastive loss
         loss += contrastive_loss
+        # Add Normalization loss
+        loss += 0.01 * (torch.sum(torch.square(encoder.parameters().to(device)))
+                 + torch.sum(torch.square(decoder.parameters().to(device))))        
 
         # Back prop.
         decoder_optimizer.zero_grad()
@@ -306,13 +312,15 @@ def validate(val_loader, encoder, decoder, criterion):
         targets = pack_padded_sequence(targets, decode_lengths, batch_first=True)[0]
 
         # cross-entrophy loss
-        loss = criterion(scores, targets)
+        loss = 0.8 * criterion(scores, targets)
 
         # Add doubly stochastic attention regularization
         loss += alpha_c * ((1. - alphas.sum(dim=1)) ** 2).mean()
         # Add Contrastive loss
         loss += contrastive_loss
-
+        # Add Normalization loss
+        loss += 0.01 * (torch.sum(torch.square(encoder.parameters().to(device)))
+                 + torch.sum(torch.square(decoder.parameters().to(device))))
 
         # Keep track of metrics
         losses.update(loss.item(), sum(decode_lengths))
