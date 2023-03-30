@@ -192,7 +192,7 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         match_distances = dist_matrix.diagonal()
         nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(dist_matrix.shape[0], device=dist_matrix.device))*1e6, dim=1).values
         # 计算对比损失
-        contrastive_loss = torch.mean(torch.clamp(margin + match_distances - nonmatch_distances, min=0))
+        contrastive_loss = torch.mean(torch.clamp(margin + match_distances - nonmatch_distances, min=0)).to(device)
 
         # 得到模型预测的输出scores
         scores, caps_sorted, decode_lengths, alphas, sort_ind = decoder(imgs, caps, caplens)
@@ -299,7 +299,7 @@ def validate(val_loader, encoder, decoder, criterion):
         match_distances = dist_matrix.diagonal()
         nonmatch_distances = torch.min(dist_matrix + (1 - torch.eye(dist_matrix.shape[0], device=dist_matrix.device))*1e6, dim=1).values
         # 计算对比损失
-        contrastive_loss = torch.mean(torch.clamp(margin + match_distances - nonmatch_distances, min=0))
+        contrastive_loss = torch.mean(torch.clamp(margin + match_distances - nonmatch_distances, min=0)).to(device)
 
 
         scores, caps_sorted, decode_lengths, alphas, sort_ind = decoder(imgs, caps, caplens)
