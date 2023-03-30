@@ -212,8 +212,9 @@ def train(train_loader, encoder, decoder, criterion, encoder_optimizer, decoder_
         # Add Contrastive loss
         loss += contrastive_loss
         # Add Normalization loss
-        loss += 0.01 * (torch.sum(torch.square(encoder.parameters().to(device)))
-                 + torch.sum(torch.square(decoder.parameters().to(device))))        
+        loss += 0.01 * torch.sum(torch.square(torch.cat([param.view(-1).to(device) for param in encoder.parameters()])))
+        loss += 0.01 * torch.sum(torch.square(torch.cat([param.view(-1).to(device) for param in decoder.parameters()])))
+  
 
         # Back prop.
         decoder_optimizer.zero_grad()
@@ -319,8 +320,8 @@ def validate(val_loader, encoder, decoder, criterion):
         # Add Contrastive loss
         loss += contrastive_loss
         # Add Normalization loss
-        loss += 0.01 * (torch.sum(torch.square(encoder.parameters().to(device)))
-                 + torch.sum(torch.square(decoder.parameters().to(device))))
+        loss += 0.01 * torch.sum(torch.square(torch.cat([param.view(-1).to(device) for param in encoder.parameters()])))
+        loss += 0.01 * torch.sum(torch.square(torch.cat([param.view(-1).to(device) for param in decoder.parameters()])))
 
         # Keep track of metrics
         losses.update(loss.item(), sum(decode_lengths))
