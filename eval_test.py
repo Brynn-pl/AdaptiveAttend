@@ -39,6 +39,11 @@ def evaluate(args):
     checkpoint = torch.load(os.path.join(args.checkpoint_folder,
                                          'BEST_checkpoint_{:s}_5_cap_per_img_5_min_word_freq.pth.tar'.format(
                                              args.dataset)))
+    
+    if torch.cuda.device_count() > 1:  # 查看当前电脑的可用的gpu的数量，若gpu数量>1,就多gpu训练
+        decoder = torch.nn.DataParallel(decoder)
+        encoder = torch.nn.DataParallel(encoder) #多gpu训练,自动选择gpu
+        
     decoder = checkpoint['decoder']
     decoder = decoder.to(device)
     decoder.eval()
@@ -217,8 +222,17 @@ def evaluate(args):
         references.append(img_captions)
 
         # Hypotheses
-        hypotheses.append([w for w in seq if w not in {word_map['<start>'], word_map['<end>'], word_map['<pad>']}])
-
+        prediction = [w for w in seq if w not in {word_map['<start>'], word_map['<end>'], word_map['<pad>']}]
+        hypotheses.append(prediction)
+        
+        txt_cap=[]
+        for s in img_captions:
+            tmp = [rev_word_map[word] for word in s]
+            txt_cap.append(tmp)
+        txt_predic=[]
+        txt_predic.append(list(rev_word_map[word] for word in prediction))
+        print(txt_cap)
+        print(txt_predic)
         assert len(references) == len(hypotheses)
 
     # Calculate BLEU scores
