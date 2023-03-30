@@ -87,9 +87,9 @@ def main(args):
             encoder_optimizer = torch.optim.Adam(params=filter(lambda p: p.requires_grad, encoder.parameters()),
                                                  lr=encoder_lr)
             
-    if torch.cuda.device_count() > 1:  # 查看当前电脑的可用的gpu的数量，若gpu数量>1,就多gpu训练
-        decoder = torch.nn.DataParallel(decoder)
-        encoder = torch.nn.DataParallel(encoder) #多gpu训练,自动选择gpu            
+#     if torch.cuda.device_count() > 1:  # 查看当前电脑的可用的gpu的数量，若gpu数量>1,就多gpu训练
+#         decoder = torch.nn.DataParallel(decoder)
+#         encoder = torch.nn.DataParallel(encoder) #多gpu训练,自动选择gpu            
     # Move to GPU, if available
     decoder = decoder.to(device)
     encoder = encoder.to(device)
