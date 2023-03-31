@@ -39,10 +39,6 @@ def evaluate(args):
     checkpoint = torch.load(os.path.join(args.checkpoint_folder,
                                          'BEST_checkpoint_{:s}_5_cap_per_img_5_min_word_freq.pth.tar'.format(
                                              args.dataset)))
-    
-    if torch.cuda.device_count() > 1:  # 查看当前电脑的可用的gpu的数量，若gpu数量>1,就多gpu训练
-        decoder = torch.nn.DataParallel(decoder)
-        encoder = torch.nn.DataParallel(encoder) #多gpu训练,自动选择gpu
         
     decoder = checkpoint['decoder']
     decoder = decoder.to(device)
