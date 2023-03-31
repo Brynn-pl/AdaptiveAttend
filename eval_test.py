@@ -221,14 +221,14 @@ def evaluate(args):
         prediction = [w for w in seq if w not in {word_map['<start>'], word_map['<end>'], word_map['<pad>']}]
         hypotheses.append(prediction)
         
-        txt_cap=[]
-        for s in img_captions:
-            tmp = [rev_word_map[word] for word in s]
-            txt_cap.append(tmp)
-        txt_predic=[]
-        txt_predic.append(list(rev_word_map[word] for word in prediction))
-        print(txt_cap)
-        print(txt_predic)
+#         txt_cap=[]
+#         for s in img_captions:
+#             tmp = [rev_word_map[word] for word in s]
+#             txt_cap.append(tmp)
+#         txt_predic=[]
+#         txt_predic.append(list(rev_word_map[word] for word in prediction))
+#         print(txt_cap)
+#         print(txt_predic)
         assert len(references) == len(hypotheses)
 
     # Calculate BLEU scores
